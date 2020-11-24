@@ -1,0 +1,69 @@
+{
+  "_from": "playwright-chromium@^1.5.2",
+  "_id": "playwright-chromium@1.6.2",
+  "_inBundle": false,
+  "_integrity": "sha512-yE/NVrttkVz/NKxOcIT2/OVemcU8TUfH3uwnfClaREnF8DZevbjwCEY4cgVaj8Peq9NQA0mVGR+mvTGrvQJOvA==",
+  "_location": "/playwright-chromium",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "playwright-chromium@^1.5.2",
+    "name": "playwright-chromium",
+    "escapedName": "playwright-chromium",
+    "rawSpec": "^1.5.2",
+    "saveSpec": null,
+    "fetchSpec": "^1.5.2"
+  },
+  "_requiredBy": [
+    "/@elastic/synthetics"
+  ],
+  "_resolved": "https://registry.npmjs.org/playwright-chromium/-/playwright-chromium-1.6.2.tgz",
+  "_shasum": "e5b1caeac45f68a8286bbbe52d1275dbe248b94a",
+  "_spec": "playwright-chromium@^1.5.2",
+  "_where": "/Users/vigneshh/elastic/synthetic-monitoring/examples/todos/node_modules/@elastic/synthetics",
+  "author": {
+    "name": "Microsoft Corporation"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/playwright/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "debug": "^4.1.1",
+    "extract-zip": "^2.0.1",
+    "https-proxy-agent": "^5.0.0",
+    "jpeg-js": "^0.4.2",
+    "mime": "^2.4.6",
+    "pngjs": "^5.0.0",
+    "progress": "^2.0.3",
+    "proper-lockfile": "^4.1.1",
+    "proxy-from-env": "^1.1.0",
+    "rimraf": "^3.0.2",
+    "ws": "^7.3.1"
+  },
+  "deprecated": false,
+  "description": "A high-level API to automate Chromium",
+  "engines": {
+    "node": ">=10.17.0"
+  },
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js"
+    },
+    "./": "./"
+  },
+  "homepage": "https://playwright.dev",
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "name": "playwright-chromium",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Microsoft/playwright.git"
+  },
+  "scripts": {
+    "install": "node install.js"
+  },
+  "version": "1.6.2"
+}

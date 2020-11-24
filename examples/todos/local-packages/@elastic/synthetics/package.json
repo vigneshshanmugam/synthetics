@@ -1,0 +1,90 @@
+{
+  "_from": "@elastic/synthetics@^0.0.1-alpha.6",
+  "_id": "@elastic/synthetics@0.0.1-alpha.6",
+  "_inBundle": false,
+  "_integrity": "sha512-aqc3WU0B6HvrGUKUVD3j42P0ZSJ3kwk0bh9B6iuqtUtTWIPO2SlFgYq01NQvxWeJbi//x96skJAUhQ6HXj/2KA==",
+  "_location": "/@elastic/synthetics",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@elastic/synthetics@^0.0.1-alpha.6",
+    "name": "@elastic/synthetics",
+    "escapedName": "@elastic%2fsynthetics",
+    "scope": "@elastic",
+    "rawSpec": "^0.0.1-alpha.6",
+    "saveSpec": null,
+    "fetchSpec": "^0.0.1-alpha.6"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/@elastic/synthetics/-/synthetics-0.0.1-alpha.6.tgz",
+  "_shasum": "02ce16fa0a94f8a63cdaa4dc941ebb58335d296d",
+  "_spec": "@elastic/synthetics@^0.0.1-alpha.6",
+  "_where": "/Users/vigneshh/elastic/synthetic-monitoring/examples/todos",
+  "author": "",
+  "bin": {
+    "synthetics": "dist/cli.js",
+    "elastic-synthetics": "dist/cli.js"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "commander": "^6.0.0",
+    "kleur": "^4.1.1",
+    "playwright-chromium": "^1.5.2",
+    "snakecase-keys": "^3.2.0",
+    "sonic-boom": "^1.1.0",
+    "source-map-support": "^0.5.19",
+    "totalist": "^2.0.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
+  },
+  "deprecated": false,
+  "description": "Elastic synthetic monitoring agent",
+  "devDependencies": {
+    "@types/jest": "^26.0.13",
+    "@types/node": "^14.14.2",
+    "@types/yargs": "^15.0.5",
+    "@typescript-eslint/eslint-plugin": "^3.9.1",
+    "@typescript-eslint/parser": "^3.9.1",
+    "eslint": "^7.7.0",
+    "husky": "^4.3.0",
+    "jest": "^26.4.1",
+    "lint-staged": "^10.2.11",
+    "nodemon": "^2.0.4",
+    "prettier": "^2.0.5",
+    "ts-jest": "^26.3.0"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "license": "MIT",
+  "lint-staged": {
+    "*.{js,ts}": [
+      "npm run lint:fix",
+      "prettier --write"
+    ]
+  },
+  "main": "dist/index.js",
+  "name": "@elastic/synthetics",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "coverage": "jest --coverage",
+    "docker": "docker build . -t heartbeat-synthetics",
+    "lint": "eslint . --rulesdir utils/eslint-rules",
+    "lint:fix": "npm run lint -- --fix",
+    "prepublish": "npm run clean && npm run build",
+    "test": "jest",
+    "watch": "tsc -w"
+  },
+  "types": "dist/index.d.ts",
+  "version": "0.0.1-alpha.6"
+}
