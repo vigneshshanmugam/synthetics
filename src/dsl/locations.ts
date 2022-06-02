@@ -23,6 +23,7 @@
  *
  */
 
+// DO NOT EDIT - UPDATE WITH `npm run build:locations`
 export const LocationsMap = {
   'Asia/Pacific - Japan': 'asia-northeast1-a',
   'Asia/Pacific - India': 'asia-south1-a',
