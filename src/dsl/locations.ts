@@ -25,14 +25,14 @@
 
 // DO NOT EDIT - UPDATE WITH `npm run build:locations`
 export const LocationsMap = {
-  'Asia/Pacific - Japan': 'asia-northeast1-a',
-  'Asia/Pacific - India': 'asia-south1-a',
-  'Asia/Pacific - Singapore': 'asia-southeast1-a',
-  'Asia/Pacific - Australia East': 'australia-southeast1-a',
-  'Europe - United Kingdom': 'europe-west2-a',
-  'Europe - Germany': 'europe-west3-a',
-  'North America - Canada East': 'northamerica-northeast1-a',
-  'South America - Brazil': 'southamerica-east1-a',
-  'North America - US East': 'us-east4-a',
-  'North America - US West': 'us-west1-a',
+  japan: 'asia-northeast1-a',
+  india: 'asia-south1-a',
+  singapore: 'asia-southeast1-a',
+  australia_east: 'australia-southeast1-a',
+  united_kingdom: 'europe-west2-a',
+  germany: 'europe-west3-a',
+  canada_east: 'northamerica-northeast1-a',
+  brazil: 'southamerica-east1-a',
+  us_east: 'us-east4-a',
+  us_west: 'us-west1-a',
 };
