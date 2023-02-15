@@ -55,6 +55,7 @@ import { Generator } from './generator';
 import { error } from './helpers';
 import { LocationsMap } from './locations/public-locations';
 import { createLightweightMonitors } from './push/monitor';
+import { loadPWTestFiles } from './transforms';
 
 /* eslint-disable-next-line @typescript-eslint/no-var-requires */
 const { name, version } = require('../package.json');
@@ -224,7 +225,7 @@ program
   .description('Initialize Elastic synthetics project')
   .action(async (dir = '') => {
     try {
-      const generator = await new Generator(resolve(process.cwd(), dir));
+      const generator = await new Generator(resolve(cwd(), dir));
       await generator.setup();
     } catch (e) {
       e && error(e);
@@ -251,6 +252,20 @@ program
         locations = formatLocations(allLocations);
       }
       renderLocations(locations);
+    } catch (e) {
+      e && error(e);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('transform [dir]')
+  .description(
+    `Transpiles the playwright test files to synthetics compatible journeys`
+  )
+  .action(async (dir = '') => {
+    try {
+      await loadPWTestFiles(resolve(cwd(), dir), '');
     } catch (e) {
       e && error(e);
       process.exit(1);
