@@ -53,7 +53,6 @@ async function transform(filename: string) {
     configFile: false,
   });
 
-  console.log(filename, '\n' + code);
   // convert the test file to a journey file by replacing test|spec with journey
   const outFile =
     dirname(filename) +

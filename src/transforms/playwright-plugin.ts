@@ -326,6 +326,16 @@ export default function (): PluginItem {
                 const body = (fn.body as t.BlockStatement).body;
                 path.replaceWithMultiple(body);
               }
+            } else if (
+              prop.node.name === 'step' &&
+              t.isAwaitExpression(path.parentPath.node)
+            ) {
+              // treat `step` as special case, as we need to replace the
+              // awaited expression with the step call
+              // eg: await test.step() -> step()
+              path.parentPath.replaceWith(
+                t.callExpression(t.identifier('step'), path.node.arguments)
+              );
             } else {
               // Replace the property name with the supported method name
               // test.beforeAll => beforeAll
@@ -347,10 +357,15 @@ export default function (): PluginItem {
                 prop.node
               )}\n`
             );
-            const parent = path.findParent(p => p.isExpressionStatement());
+            const parent = path.findParent(
+              p => p.isExpressionStatement() || p.isBlockStatement()
+            );
             if (t.isNode(parent)) {
               const prev = parent.getPrevSibling();
-              prev.addComment('trailing', `Not supported: ${prop.node.name}`);
+              prev.addComment(
+                'trailing',
+                `Not supported: test.${prop.node.name}`
+              );
               prev.addComment('trailing', path.getSource());
               parent.remove();
             }
