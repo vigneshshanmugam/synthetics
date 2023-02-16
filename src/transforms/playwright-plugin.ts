@@ -67,10 +67,14 @@ const EXPECT_MATCHERS: Record<string, string> = {
   toHaveAttribute: 'await locator.getAttribute()',
   toHaveCount: 'await locator.count()',
   toHaveId: 'await locator.getAttribute()',
+  toHaveCSS: 'await locator.getAttribute()',
   toHaveText: 'await locator.textContent()',
   toHaveValue: 'await locator.getAttribute()',
   toHaveValues: 'await locator.getAttribute()',
   toBeOK: 'await response.status()',
+  toBeEmpty: '',
+  toHaveClass: '',
+  toHaveScreenshot: '',
 };
 const UNSUPPORTED_EXPECT_METHODS = Object.keys(EXPECT_MATCHERS);
 
@@ -258,7 +262,17 @@ export default function (): PluginItem {
             return;
           }
           path[kVisited] = true;
-          const prop = path.parentPath.node.property;
+          let prop = path.parentPath.node.property;
+          let isNot = false;
+          // check if its a expect().not.<method> call
+          if (
+            prop.name === 'not' &&
+            t.isMemberExpression(path.parentPath.parentPath.node) &&
+            t.isIdentifier(path.parentPath.parentPath.node.property)
+          ) {
+            isNot = true;
+            prop = path.parentPath.parentPath.node.property;
+          }
 
           if (!UNSUPPORTED_EXPECT_METHODS.includes(prop.name)) {
             return;
@@ -270,13 +284,16 @@ export default function (): PluginItem {
           if (t.isNode(parent)) {
             const value = parent.getSource();
             const prev = parent.getPrevSibling();
-
-            prev.addComment(
-              'trailing',
-              `Not supported: consider using expect(${
+            let commentValue = `Not supported: `;
+            if (EXPECT_MATCHERS[prop.name]) {
+              commentValue += `consider using expect(${
                 EXPECT_MATCHERS[prop.name]
-              }).toBe(<value>)`
-            );
+              })${isNot ? '.not' : ''}.toBe(<value>)`;
+            } else {
+              commentValue += prop.name;
+            }
+
+            prev.addComment('trailing', commentValue);
             prev.addComment('trailing', value);
             parent.remove();
           }
@@ -298,52 +315,7 @@ export default function (): PluginItem {
               );
               path.remove();
               return;
-            } else if (SUPPORTED_HOOKS.includes(prop.node.name)) {
-              // For all supported methods, we transform to the closest
-              // alternative in Synthetics DSL
-              const name = prop.node.name;
-
-              // treat step as a special case, as we dont need to await on it
-              if (name === 'step' && t.isAwaitExpression(path.parent)) {
-                path.parentPath.replaceWith(path);
-                return;
-              }
-
-              // treat describe as a special case, we need to flattern all the
-              // tests inside it as separate journeys
-              if (name === 'describe') {
-                const args = path.node.arguments;
-                const statements = [];
-                for (const arg of args) {
-                  if (t.isFunction(arg)) {
-                    const body = (arg.body as t.BlockStatement).body;
-                    for (const statement of body) {
-                      if (
-                        t.isExpressionStatement(statement) &&
-                        t.isCallExpression(statement.expression) &&
-                        t.isIdentifier(statement.expression.callee, {
-                          name: 'test',
-                        })
-                      ) {
-                        statements.push(statement);
-                      }
-                    }
-                  }
-                }
-                // if we find any test statements, we treat it as a journey
-                // and move it to top level
-                if (statements.length > 0) {
-                  path.replaceWithMultiple(statements);
-                }
-                return;
-              }
-
-              path.replaceWith(
-                t.callExpression(
-                  t.identifier(TRANSFORM_MAP[name] || name),
-                  path.node.arguments
-                )
-              );
+            } else {
             }
           }
         }
