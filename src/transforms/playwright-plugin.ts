@@ -24,13 +24,15 @@
  */
 
 import { NodePath, PluginItem, types as t } from '@babel/core';
-import { error } from '../helpers';
+import { warn } from '../helpers';
 
 // Map of Playwright hooks to Synthetics DSL
 const TRANSFORM_MAP = {
   test: 'journey',
   expect: 'expect',
   step: 'step',
+  beforeAll: 'beforeAll',
+  afterAll: 'afterAll',
 };
 
 // Hooks that are supported by the Synthetics DSL
@@ -169,6 +171,8 @@ export default function (): PluginItem {
           return;
         }
 
+        // If we are in named exports from plawyright, we need to transform
+        // ex: import { test, expect } from '@playwright/test'
         for (const specifier of specifiers) {
           // If we are in named exports from plawyright, we need to transform
           if (
@@ -202,6 +206,7 @@ export default function (): PluginItem {
 
       CallExpression(path, state) {
         // Check if we are inside a require statement
+        // ex: const { test, expect } = require('@playwright/test');
         if (t.isIdentifier(path.node.callee, { name: 'require' })) {
           const args = path.node.arguments;
           // Change the require path to @elastic/synthetics
@@ -252,7 +257,8 @@ export default function (): PluginItem {
         }
 
         // Check if we are inside a expect call
-        // expect("a").toBe("b")
+        // ex: expect("a").toBe("b")
+        // ex: expect("a").not.toBe("b")
         if (
           t.isIdentifier(path.node.callee, { name: 'expect' }) &&
           t.isMemberExpression(path.parentPath.node) &&
@@ -282,7 +288,6 @@ export default function (): PluginItem {
             p.isExpressionStatement()
           );
           if (t.isNode(parent)) {
-            const value = parent.getSource();
             const prev = parent.getPrevSibling();
             let commentValue = `Not supported: `;
             if (EXPECT_MATCHERS[prop.name]) {
@@ -294,28 +299,60 @@ export default function (): PluginItem {
             }
 
             prev.addComment('trailing', commentValue);
-            prev.addComment('trailing', value);
+            prev.addComment('trailing', parent.getSource());
             parent.remove();
+            return;
           }
         }
 
         // Check if the callee is one of the supported methods from
-        // Playwright test library
+        // playwright test library
+        // ex: test.beforeAll, test.beforeEach, test.afterAll, test.afterEach
         if (t.isMemberExpression(path.node.callee)) {
           const callee = path.get('callee');
           const prop = callee.get('property') as NodePath<t.Identifier>;
-          if (t.isIdentifier(prop)) {
-            // Remove all the unsupported hooks, as it will throw an error
-            // when run via Synthetics runner
-            if (UNSUPPORTED_HOOKS.includes(prop.node.name)) {
-              error(
-                `Removing unsupported method: '${
-                  prop.node.name
-                }' in ${getLocation(state.file?.opts?.filename, prop.node)}\n`
-              );
-              path.remove();
-              return;
+          if (!t.isIdentifier(prop)) {
+            return;
+          }
+
+          // Check if the method is supported in synthetics runner
+          if (SUPPORTED_HOOKS.includes(prop.node.name)) {
+            // lift all the group of tests that are inside describe block
+            // to the top level as journeys
+            if (prop.node.name === 'describe') {
+              const args = path.node.arguments;
+              const fn = args.length > 1 ? args[1] : args[0];
+              if (t.isFunction(fn)) {
+                const body = (fn.body as t.BlockStatement).body;
+                path.replaceWithMultiple(body);
+              }
             } else {
+              // Replace the property name with the supported method name
+              // test.beforeAll => beforeAll
+              path.replaceWith(
+                t.callExpression(
+                  t.identifier(TRANSFORM_MAP[prop.node.name] || prop.node.name),
+                  path.node.arguments
+                )
+              );
+            }
+          }
+
+          // Remove all the unsupported hooks, as it will throw an error
+          // when run via Synthetics runner
+          if (UNSUPPORTED_HOOKS.includes(prop.node.name)) {
+            warn(
+              `unsupported method: '${prop.node.name}' in ${getLocation(
+                state.file?.opts?.filename,
+                prop.node
+              )}\n`
+            );
+            const parent = path.findParent(p => p.isExpressionStatement());
+            if (t.isNode(parent)) {
+              const prev = parent.getPrevSibling();
+              prev.addComment('trailing', `Not supported: ${prop.node.name}`);
+              prev.addComment('trailing', path.getSource());
+              parent.remove();
             }
           }
         }
