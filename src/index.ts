@@ -63,7 +63,7 @@ export { devices, request } from 'playwright-core';
 /**
  * Export the types necessary to write custom reporters
  */
-export type { default as Runner } from './core/runner';
+export type { default as Runner, RunnerInfo } from './core/runner';
 export type { Reporter, ReporterOptions } from './reporters';
 
 export type {
